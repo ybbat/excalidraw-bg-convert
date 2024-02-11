@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { colord } from 'colord';
+	import { colour } from './stores';
 
 	let hex = '#';
 
@@ -10,6 +11,7 @@
 		hex = '#' + hex;
 		// Update other inputs
 		const color = colord(hex);
+		colour.set(color);
 		const rgb = color.toRgb();
 		red = rgb.r.toString();
 		green = rgb.g.toString();
@@ -40,6 +42,7 @@
 
 		// Update other inputs
 		const color = colord({ r: +red, g: +green, b: +blue });
+		colour.set(color);
 		hex = color.toHex();
 		const hsl = color.toHsl();
 		hue = hsl.h.toString();
@@ -69,6 +72,7 @@
 
 		// Update other inputs
 		const color = colord({ h: +hue, s: +sat, l: +lig });
+		colour.set(color);
 		hex = color.toHex();
 		const rgb = color.toRgb();
 		red = rgb.r.toString();
