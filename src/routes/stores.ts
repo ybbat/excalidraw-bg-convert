@@ -1,4 +1,4 @@
-import { Colord } from "colord";
+import { colord } from "colord";
 import { writable } from "svelte/store";
 
-export const colour = writable<Colord>();
+export const target = writable(colord("#1e1e2e"));
