@@ -60,14 +60,12 @@
 		hue = clamp(parseInt(hue.replace(invalidChars, '')), 0, 360)
 			.toString()
 			.replace(invalidChars, '');
-		sat =
-			clamp(parseInt(sat.replace(invalidChars, '')), 0, 100)
-				.toString()
-				.replace(invalidChars, '') + '%';
-		lig =
-			clamp(parseInt(lig.replace(invalidChars, '')), 0, 100)
-				.toString()
-				.replace(invalidChars, '') + '%';
+		sat = clamp(parseInt(sat.replace(invalidChars, '')), 0, 100)
+			.toString()
+			.replace(invalidChars, '');
+		lig = clamp(parseInt(lig.replace(invalidChars, '')), 0, 100)
+			.toString()
+			.replace(invalidChars, '');
 		if (!hue || !sat || !lig) return;
 
 		// Update other inputs
