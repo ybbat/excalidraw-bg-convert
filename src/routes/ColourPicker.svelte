@@ -2,6 +2,9 @@
 	import { colord } from 'colord';
 	import { target } from './stores';
 
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+
 	let hex = '#';
 
 	const updatedHex = () => {
@@ -64,13 +67,17 @@
 		sat = clamp(parseInt(sat.replace(invalidChars, '')), 0, 100)
 			.toString()
 			.replace(invalidChars, '');
+		const sat_val = sat;
+		sat += '%';
 		lig = clamp(parseInt(lig.replace(invalidChars, '')), 0, 100)
 			.toString()
 			.replace(invalidChars, '');
-		if (!hue || !sat || !lig) return;
+		const lig_val = lig;
+		lig += '%';
+		if (!hue || !sat_val || !lig_val) return;
 
 		// Update other inputs
-		const color = colord({ h: +hue, s: +sat, l: +lig });
+		const color = colord({ h: +hue, s: +sat_val, l: +lig_val });
 		target.set(color);
 		hex = color.toHex();
 		const rgb = color.toRgb();
@@ -84,19 +91,25 @@
 	};
 </script>
 
-<label>
-	Hex
-	<input bind:value={hex} maxlength="7" on:input={updatedHex} />
-</label>
-<label>
-	RGB
-	<input bind:value={red} on:input={updatedRgb} />
-	<input bind:value={green} on:input={updatedRgb} />
-	<input bind:value={blue} on:input={updatedRgb} />
-</label>
-<label>
-	HSL
-	<input bind:value={hue} on:input={updatedHsl} />
-	<input bind:value={sat} on:input={updatedHsl} />
-	<input bind:value={lig} on:input={updatedHsl} />
-</label>
+<div class="{$$props.class} flex flex-col">
+	<div>
+		<Label>Hex</Label>
+		<Input bind:value={hex} on:input={updatedHex} maxlength={7} class="text-black" />
+	</div>
+	<div>
+		<Label>RGB</Label>
+		<div class="flex flex-row">
+			<Input bind:value={red} on:input={updatedRgb} class="w-14 text-black" placeholder="R" />
+			<Input bind:value={green} on:input={updatedRgb} class="w-14 text-black" placeholder="G" />
+			<Input bind:value={blue} on:input={updatedRgb} class="w-14 text-black" placeholder="B" />
+		</div>
+	</div>
+	<div>
+		<Label>HSL</Label>
+		<div class="flex flex-row">
+			<Input bind:value={hue} on:input={updatedHsl} class="w-14 text-black" />
+			<Input bind:value={sat} on:input={updatedHsl} class="w-16 text-black" />
+			<Input bind:value={lig} on:input={updatedHsl} class="w-16 text-black" />
+		</div>
+	</div>
+</div>

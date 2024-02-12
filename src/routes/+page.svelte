@@ -5,6 +5,7 @@
 	import labPlugin from 'colord/plugins/lab';
 	extend([labPlugin]);
 	import { transform, approx_backwards } from '$lib/colour-utils';
+	import { Toggle } from '$lib/components/ui/toggle';
 
 	import { onMount } from 'svelte';
 
@@ -30,40 +31,86 @@
 
 	let interval: number | undefined = undefined;
 
+	let n = 0;
+
 	target.subscribe((t) => {
 		if (t && t.isValid()) {
 			excalCol = transform(t);
 			guess = approx_backwards(t);
 			syncWorker?.postMessage({ target: t.toHex(), guess: guess.toHex() });
 			clearInterval(interval);
+
 			interval = setInterval(() => {
+				n++;
+				// Try the optimisation strategy n times
+				if (n > 20) {
+					clearInterval(interval);
+				}
 				syncWorker?.postMessage({ target: t.toHex(), guess: guess.toHex() });
-			}, 1000);
+			}, 250);
 		}
 	});
 </script>
 
-<ColourPicker />
-<p>Target: {$target.toHex()}</p>
-<p>Excal col (ish): {excalCol.toHex()} - diff from target {$target.delta(excalCol)}</p>
-<p>
-	Approximation: {guess.toHex()} - after transform {transform(guess).toHex()} - diff from target {$target.delta(
-		transform(guess)
-	)}
-</p>
-
-<label>
-	Haven't figured out the name of this butotn yet
-	<button on:click={() => (displayExcal = !displayExcal)}>Boo!</button>
-</label>
+<div
+	class="split-text align-center absolute left-1/2 flex h-screen -translate-x-1/2 flex-col items-center text-center text-white mix-blend-difference"
+>
+	<h1 class="mt-3 scroll-m-20 justify-center text-4xl font-extrabold tracking-tight lg:text-5xl">
+		Excalidraw Colour Convert
+	</h1>
+	<div class="hidden lg:contents">
+		<p class="mt-6 leading-7">
+			By default Excalidraw will transform* the colour of your selected colour when you switch to
+			dark mode, with no way to override this behaviour. This application aims to provide a colour
+			to input such that after the transformations it will be as close as possible to your desired
+			colour.
+		</p>
+		<p class="group absolute bottom-0 mb-3 align-middle font-mono text-sm font-semibold leading-7">
+			∗
+			<span
+				class="font-mono opacity-0 transition-opacity duration-150 ease-in-out group-hover:opacity-100"
+			>
+				transform: invert(93%) hue-rotate(180deg)
+			</span>
+		</p>
+	</div>
+</div>
 
 <div class="flex h-screen">
 	<!-- Left -->
-	<div class="flex-1" style="background-color: {$target.toHex()}"></div>
+	<div
+		class="flex flex-1 flex-col items-center justify-center align-middle text-white"
+		style:background-color={$target.toHex()}
+	>
+		<div class="mix-blend-difference">
+			<h2>Select target colour</h2>
+			<ColourPicker />
+		</div>
+		<!-- <p>Target: {$target.toHex()}</p>
+		<p>Excal col (ish): {excalCol.toHex()} - diff from target {$target.delta(excalCol)}</p>
+		<p>
+			Approximation: {guess.toHex()} - after transform {transform(guess).toHex()} - diff from target
+			{$target.delta(transform(guess))}
+		</p>
+		<label>
+			Haven't figured out the name of this butotn yet
+			<button on:click={() => (displayExcal = !displayExcal)}>Boo!</button>
+		</label> -->
+	</div>
 
 	<!-- Right -->
 	<div
-		class="flex-1 bg-slate-200"
-		style="background-color: {displayExcal ? excalCol.toHex() : transform(guess).toHex()}"
-	></div>
+		class="flex flex-1 items-center justify-center align-middle"
+		style:background-color={displayExcal ? excalCol.toHex() : transform(guess).toHex()}
+	>
+		<div class="text-white mix-blend-difference">
+			{#if displayExcal}
+				<p>Transform of target</p>
+			{:else}
+				<p>Transform of guess</p>
+			{/if}
+			<Toggle on:click={() => (displayExcal = !displayExcal)} class="m-6">Preview Guess</Toggle>
+			<p>Guess hex: {guess.toHex()}</p>
+		</div>
+	</div>
 </div>

@@ -8,7 +8,7 @@ onmessage = async (e: MessageEvent) => {
 	const guess = colord(e.data.guess);
 
 	const cost = cost_fn(target);
-	simulated_annealing(cost, guess);
+	simulated_annealing(cost, guess, 0.99, 10000);
 };
 
 const cost_fn = (target: Colord) => {
