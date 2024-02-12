@@ -47,14 +47,22 @@ const simulated_annealing = (
 	return best;
 };
 
+const normalRandom = (mean: number, std:number) => mean + std * Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+
+// Alternatively consider changing in a different color space
 const generate_neighbour = (c: Colord): Colord => {
 	const rgb = c.toRgb();
 	const dimension = Math.floor(Math.random() * 3);
-	const change = Math.floor(Math.random() * 3) - 1;
+	const change = normalRandom(0, 15);
 	const new_col = { ...rgb };
-	if (dimension === 0) new_col.r += change;
-	if (dimension === 1) new_col.g += change;
-	if (dimension === 2) new_col.b += change;
+	if (dimension === 0) {
+        new_col.r = Math.min(Math.max(new_col.r + change, 0), 255);
+    } else if (dimension === 1) {
+        new_col.g = Math.min(Math.max(new_col.g + change, 0), 255);
+    } else {
+        new_col.b = Math.min(Math.max(new_col.b + change, 0), 255);
+    }
+
 	return colord(new_col);
 };
 
