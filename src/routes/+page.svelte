@@ -6,15 +6,33 @@
 	extend([labPlugin]);
 	import { transform, approx_backwards } from '$lib/colour-utils';
 
+	import { onMount } from 'svelte';
+
 	let excalCol = transform($target);
 	let guess = approx_backwards($target);
+
+	let syncWorker: Worker | undefined = undefined;
+
+	const onWorkerMessage = (e: MessageEvent) => {
+		guess = colord(e.data.best);
+	};
+
+	const loadWorker = async () => {
+		const SyncWorker = await import('$lib/find-col.worker?worker');
+		syncWorker = new SyncWorker.default();
+
+		syncWorker.onmessage = onWorkerMessage;
+	};
+
+	onMount(loadWorker);
 
 	let displayExcal = true;
 
 	target.subscribe((t) => {
-		if (t.isValid()) {
+		if (t && t.isValid()) {
 			excalCol = transform(t);
 			guess = approx_backwards(t);
+			syncWorker?.postMessage({ target: t.toHex(), guess: guess.toHex() });
 		}
 	});
 </script>

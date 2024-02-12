@@ -10,6 +10,7 @@
 		hex = hex.replace(invalidChars, '');
 		hex = '#' + hex;
 		// Update other inputs
+		if (hex.length !== 4 && hex.length !== 7) return;
 		const color = colord(hex);
 		target.set(color);
 		const rgb = color.toRgb();
