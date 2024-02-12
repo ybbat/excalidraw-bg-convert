@@ -4,13 +4,15 @@
 	import { Colord, colord, extend } from 'colord';
 	import labPlugin from 'colord/plugins/lab';
 	extend([labPlugin]);
-	import { transform, approx_backwards } from '$lib/colour-utils';
+	import { transform, approx_backwards, gen_readable } from '$lib/colour-utils';
 	import { Toggle } from '$lib/components/ui/toggle';
 
 	import { onMount } from 'svelte';
 
 	let excalCol = transform($target);
 	let guess = approx_backwards($target);
+
+	$: trans_guess = transform(guess);
 
 	let syncWorker: Worker | undefined = undefined;
 
@@ -50,60 +52,57 @@
 			}, 250);
 		}
 	});
+
+	$: bg = `linear-gradient(to right, ${gen_readable($target).toHex()} 50%, ${gen_readable(
+		displayExcal ? excalCol : trans_guess
+	).toHex()} 50%)`;
 </script>
 
-<div
-	class="split-text align-center absolute left-1/2 flex h-screen -translate-x-1/2 flex-col items-center text-center text-white mix-blend-difference"
->
-	<h1 class="mt-3 scroll-m-20 justify-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-		Excalidraw Colour Convert
-	</h1>
-	<div class="hidden lg:contents">
-		<p class="mt-6 leading-7">
-			By default Excalidraw will transform* the colour of your selected colour when you switch to
-			dark mode, with no way to override this behaviour. This application aims to provide a colour
-			to input such that after the transformations it will be as close as possible to your desired
-			colour.
-		</p>
-		<p class="group absolute bottom-0 mb-3 align-middle font-mono text-sm font-semibold leading-7">
-			∗
-			<span
-				class="font-mono opacity-0 transition-opacity duration-150 ease-in-out group-hover:opacity-100"
-			>
-				transform: invert(93%) hue-rotate(180deg)
-			</span>
-		</p>
+<!-- Rerender when bg gradient changes not ideal but needed (I think) to fix some css ordering funkyness -->
+{#key bg}
+	<div
+		class="align-center pointer-events-none absolute left-1/2 flex h-screen -translate-x-1/2 flex-col items-center text-center"
+		style:background={bg}
+		style:background-clip="text"
+		style:-webkit-background-clip="text"
+		style:-webkit-text-fill-color="transparent"
+	>
+		<h1
+			class="pointer-events-auto mt-3 scroll-m-20 justify-center text-4xl font-extrabold tracking-tight lg:text-5xl"
+		>
+			Excalidraw Colour Convert
+		</h1>
+		<div class="hidden lg:contents">
+			<p class="pointer-events-auto mt-6 leading-7">
+				By default Excalidraw will transform the colour of your selected colour when you switch to
+				dark mode, with no way to override this behaviour. This application aims to provide a colour
+				to input such that after the transformations it will be as close as possible to your desired
+				colour.
+			</p>
+		</div>
 	</div>
-</div>
+{/key}
 
 <div class="flex h-screen">
 	<!-- Left -->
 	<div
 		class="flex flex-1 flex-col items-center justify-center align-middle text-white"
 		style:background-color={$target.toHex()}
+		style:color={gen_readable($target).toHex()}
 	>
-		<div class="mix-blend-difference">
+		<div class="">
 			<h2>Select target colour</h2>
 			<ColourPicker />
 		</div>
-		<!-- <p>Target: {$target.toHex()}</p>
-		<p>Excal col (ish): {excalCol.toHex()} - diff from target {$target.delta(excalCol)}</p>
-		<p>
-			Approximation: {guess.toHex()} - after transform {transform(guess).toHex()} - diff from target
-			{$target.delta(transform(guess))}
-		</p>
-		<label>
-			Haven't figured out the name of this butotn yet
-			<button on:click={() => (displayExcal = !displayExcal)}>Boo!</button>
-		</label> -->
 	</div>
 
 	<!-- Right -->
 	<div
 		class="flex flex-1 items-center justify-center align-middle"
-		style:background-color={displayExcal ? excalCol.toHex() : transform(guess).toHex()}
+		style:background-color={displayExcal ? excalCol.toHex() : trans_guess.toHex()}
+		style:color={displayExcal ? gen_readable(excalCol).toHex() : gen_readable(trans_guess).toHex()}
 	>
-		<div class="text-white mix-blend-difference">
+		<div class="">
 			{#if displayExcal}
 				<p>Transform of target</p>
 			{:else}
