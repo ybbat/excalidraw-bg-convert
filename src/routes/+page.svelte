@@ -28,11 +28,17 @@
 
 	let displayExcal = true;
 
+	let interval: number | undefined = undefined;
+
 	target.subscribe((t) => {
 		if (t && t.isValid()) {
 			excalCol = transform(t);
 			guess = approx_backwards(t);
 			syncWorker?.postMessage({ target: t.toHex(), guess: guess.toHex() });
+			clearInterval(interval);
+			interval = setInterval(() => {
+				syncWorker?.postMessage({ target: t.toHex(), guess: guess.toHex() });
+			}, 1000);
 		}
 	});
 </script>
