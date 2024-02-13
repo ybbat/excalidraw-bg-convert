@@ -58,6 +58,13 @@
 	).toHex()} 50%)`;
 </script>
 
+<svelte:head>
+	<title>Excalidraw Colour Convert</title>
+	<meta
+		name="description"
+		content="Aims to find a colour input for Excalidraw such that it is close to the target when switched to dark mode."
+	/>
+</svelte:head>
 <!-- Rerender when bg gradient changes not ideal but needed (I think) to fix some css ordering funkyness -->
 {#key bg}
 	<div
