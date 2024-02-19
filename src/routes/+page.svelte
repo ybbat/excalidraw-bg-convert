@@ -6,6 +6,7 @@
 	extend([labPlugin]);
 	import { transform, approx_backwards, gen_readable } from '$lib/colour-utils';
 	import { Toggle } from '$lib/components/ui/toggle';
+	import * as Card from '$lib/components/ui/card';
 
 	import { onMount } from 'svelte';
 
@@ -97,10 +98,12 @@
 		style:background-color={$target.toHex()}
 		style:color={gen_readable($target).toHex()}
 	>
-		<div class="">
-			<h2>Select target colour</h2>
-			<ColourPicker />
-		</div>
+		<Card.Root class="w-1/4 p-3">
+			<Card.Header>Select target colour</Card.Header>
+			<Card.Content>
+				<ColourPicker />
+			</Card.Content>
+		</Card.Root>
 	</div>
 
 	<!-- Right -->
@@ -109,14 +112,25 @@
 		style:background-color={displayExcal ? excalCol.toHex() : trans_guess.toHex()}
 		style:color={displayExcal ? gen_readable(excalCol).toHex() : gen_readable(trans_guess).toHex()}
 	>
-		<div class="">
-			{#if displayExcal}
-				<p>Transform of target</p>
-			{:else}
-				<p>Transform of guess</p>
-			{/if}
-			<Toggle on:click={() => (displayExcal = !displayExcal)} class="m-6">Preview Guess</Toggle>
-			<p>Guess hex: {guess.toHex()}</p>
-		</div>
+		<Card.Root class="w-72 p-3 bg-blend-overlay">
+			<Card.Header>Best Guess</Card.Header>
+			<Card.Description class="break p-3">
+				This side of the page showcases the
+				{#if displayExcal}
+					target
+				{:else}
+					guess
+				{/if}
+				colour after Excalidraw's transformation.
+			</Card.Description>
+
+			<Card.Content>
+				<Toggle
+					on:click={() => (displayExcal = !displayExcal)}
+					class="m-3 ring-2 ring-zinc-900 hover:ring-4">Preview Guess</Toggle
+				>
+				<p>Guess hex: {guess.toHex()}</p>
+			</Card.Content>
+		</Card.Root>
 	</div>
 </div>
